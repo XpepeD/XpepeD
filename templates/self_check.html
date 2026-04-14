@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Самопроверка формулировки цели</h2>
+<form method="post">
+  <label>Тип роли:
+    <select name="role_type">
+      <option value="office">office</option>
+      <option value="production">production</option>
+    </select>
+  </label>
+  <label>Отдел:
+    <input type="text" name="department" value="Офис">
+  </label>
+  <label>Цель:
+    <textarea name="goal_text" rows="4" required></textarea>
+  </label>
+  <label>Результат:
+    <textarea name="result" rows="3"></textarea>
+  </label>
+  <label><input type="checkbox" name="use_llm" value="1"> Использовать LLM</label>
+  <button type="submit">Проверить</button>
+</form>
+
+{% if result %}
+<section>
+  <h3>Результат</h3>
+  <p><b>Качество цели:</b> {{ result.goal_quality_score }}</p>
+  <p><b>Качество результата:</b> {{ result.result_quality_score }}</p>
+  <h4>Детали</h4>
+  <ul>
+    {% for goal in result.goals %}
+      <li>
+        <b>Оценка цели:</b> {{ goal.goal_score }},
+        <b>Оценка результата:</b> {{ goal.result_score }}<br>
+        <b>Комментарий:</b> {{ goal.llm_comment or '-' }}
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
