@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ employee.name }} ({{ employee.employee_id }})</h2>
+<p><b>Отдел:</b> {{ employee.department }}</p>
+<p><b>Финальная оценка:</b> {{ employee.final_rating }}</p>
+<p><b>Среднее качество целей:</b> {{ employee.goal_quality_score }}</p>
+<p><b>Среднее качество результатов:</b> {{ employee.result_quality_score }}</p>
+<p><b>Стратегическое влияние:</b> {{ employee.strategic_impact_score }}</p>
+<p><b>Доля выполненных целей:</b> {{ employee.goal_completion_rate }}</p>
+
+{% if employee.hr_risk_flags %}
+<section>
+  <h3>HR-флаги</h3>
+  <ul>
+    {% for flag in employee.hr_risk_flags %}
+      <li>{{ flag_labels.get(flag, flag) }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<h3>Цели</h3>
+<table>
+  <thead>
+    <tr><th>Цель</th><th>Результат</th><th>Статус</th><th>Качество цели</th><th>Качество результата</th><th>Влияние</th><th>Рутинность</th><th>Комментарий LLM</th></tr>
+  </thead>
+  <tbody>
+    {% for goal in employee.goals %}
+    <tr>
+      <td>{{ goal.goal }}</td>
+      <td>{{ goal.result }}</td>
+      <td>{{ goal.status }}</td>
+      <td>{{ goal.goal_score }}</td>
+      <td>{{ goal.result_score }}</td>
+      <td>{{ goal.impact_score }}</td>
+      <td>{{ goal.routine_score }}</td>
+      <td>{{ goal.llm_comment or '-' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p><a href="{{ url_for('dashboard', use_llm=1 if use_llm else 0) }}">← Назад</a></p>
+{% endblock %}

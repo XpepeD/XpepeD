@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="controls">
+  <form method="get" action="{{ url_for('dashboard') }}">
+    <label>
+      <input type="checkbox" name="use_llm" value="1" {% if use_llm %}checked{% endif %}>
+      Использовать LLM
+    </label>
+    <button type="submit">Обновить</button>
+  </form>
+  <p class="note">
+    AI-сигналы предназначены для приоритезации ручной проверки HR/руководителем и не являются автоматическим кадровым решением.
+  </p>
+</section>
+
+<section>
+  <h2>Сигналы риска для HR</h2>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Сотрудник</th><th>Отдел</th><th>Оценка</th><th>Флаги</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for e in flagged %}
+      <tr class="danger">
+        <td>{{ e.employee_id }}</td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.department }}</td>
+        <td>{{ e.final_rating }}</td>
+        <td>
+          <ul>
+          {% for flag in e.hr_risk_flags %}
+            <li>{{ flag_labels.get(flag, flag) }}</li>
+          {% endfor %}
+          </ul>
+        </td>
+        <td><a href="{{ url_for('employee_card', employee_id=e.employee_id, use_llm=1 if use_llm else 0) }}">Открыть</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">Риски по текущим данным не найдены.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Сводка по отделам</h2>
+  <table>
+    <thead><tr><th>Отдел</th><th>Кол-во</th><th>Качество целей</th><th>Качество результатов</th><th>Стратегическое влияние</th><th>Доля рисков</th></tr></thead>
+    <tbody>
+      {% for row in summary %}
+      <tr>
+        <td>{{ row.department }}</td>
+        <td>{{ row.count }}</td>
+        <td>{{ row.goal_quality_avg }}</td>
+        <td>{{ row.result_quality_avg }}</td>
+        <td>{{ row.impact_avg }}</td>
+        <td>{{ row.risk_share }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Все сотрудники</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Сотрудник</th><th>Отдел</th><th>Оценка</th><th>Качество целей</th><th>Качество результата</th><th>Влияние</th><th>Выполнение целей</th><th></th></tr></thead>
+    <tbody>
+      {% for e in employees %}
+      <tr>
+        <td>{{ e.employee_id }}</td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.department }}</td>
+        <td>{{ e.final_rating }}</td>
+        <td>{{ e.goal_quality_score }}</td>
+        <td>{{ e.result_quality_score }}</td>
+        <td>{{ e.strategic_impact_score }}</td>
+        <td>{{ e.goal_completion_rate }}</td>
+        <td><a href="{{ url_for('employee_card', employee_id=e.employee_id, use_llm=1 if use_llm else 0) }}">Открыть</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
